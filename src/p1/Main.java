@@ -9,13 +9,12 @@ public class Main {
         arvore.percorrer(Ordem.PREORDEM);
         arvore.percorrer(Ordem.INORDEM);
         arvore.percorrer(Ordem.POSORDEM);
-        arvore.imprimirArvore();
         arvore.remove(10);
         arvore.percorrer(Ordem.PREORDEM);
         arvore.percorrer(Ordem.INORDEM);
         arvore.percorrer(Ordem.POSORDEM);
-        arvore.imprimirArvore();
         System.out.println(arvore.retornarMaior());
         System.out.println(arvore.retornarMenor());
+        System.out.println(arvore.tamanho());
     }
 }

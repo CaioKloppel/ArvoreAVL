@@ -15,13 +15,19 @@ public class ArvoreAVL {
 
     private No raiz;
 
+    // ------------------------------------------------------------ construtores
+
     public ArvoreAVL(){};
+
     public ArvoreAVL(int valor){
         insereElemento(valor);
     };
+
     public ArvoreAVL(int[] valor){
         insereElemento(valor);
     }
+
+    // ---------------------------------------------------------------- inserção
 
     public void insereElemento(int valor){
         if(raiz == null) {raiz = new No(valor); return;}
@@ -51,17 +57,11 @@ public class ArvoreAVL {
         return balancear(no);
     }
 
+    // ----------------------------------------------------------------- remoção
+
     public void remove(int elemento){
         if(raiz == null) return;
         remove(elemento, raiz);
-    }
-
-    private int atualizarAltura(No no){
-        return 1 + Math.max(
-                no.esquerda != null ? no.esquerda.altura : 0
-                ,
-                no.direita != null ? no.direita.altura : 0
-        );
     }
 
     private void remove(int elemento, No no){
@@ -84,6 +84,20 @@ public class ArvoreAVL {
         balancear(no);
     }
 
+    private No removerNo(No no){
+        if (no.esquerda == null) return no.direita;
+        if (no.direita == null) return no.esquerda;
+
+        No aux = no.direita;
+        while (aux.esquerda != null) aux = aux.esquerda;
+
+        no.valor = aux.valor;
+        remove(aux.valor, no.direita);
+        return no;
+    }
+
+    // ------------------------------------------------ balanceamento e rotações
+
     private No balancear(No no) {
         no.altura = atualizarAltura(no);
         int fb = calcularFb(no);
@@ -97,6 +111,14 @@ public class ArvoreAVL {
         int fbFilho = calcularFb(pesado);
 
         return rotacionar(no, pesado, fb, fbFilho);
+    }
+
+    private int atualizarAltura(No no){
+        return 1 + Math.max(
+                no.esquerda != null ? no.esquerda.altura : 0
+                ,
+                no.direita != null ? no.direita.altura : 0
+        );
     }
 
     private int calcularFb(No aux){
@@ -134,43 +156,7 @@ public class ArvoreAVL {
         return temp;
     }
 
-    private No removerNo(No no){
-        if (no.esquerda == null) return no.direita;
-        if (no.direita == null) return no.esquerda;
-
-        No aux = no.direita;
-        while (aux.esquerda != null) aux = aux.esquerda;
-
-        no.valor = aux.valor;
-        remove(aux.valor, no.direita);
-        return no;
-    }
-
-    public void percorrer(Ordem tipo){
-        System.out.println("===SEQUÊNCIA " + tipo + "===");
-        auxPercorre(raiz, tipo);
-        System.out.println("===FIM DA ÁRVORE===");
-    }
-
-    private void auxPercorre(No atual, Ordem tipo){
-        switch (tipo){
-            case PREORDEM -> {
-                System.out.println(atual.valor);
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-            }
-            case INORDEM -> {
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-                System.out.println(atual.valor);
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-            }
-            case POSORDEM -> {
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-                System.out.println(atual.valor);
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-            }
-        }
-    }
+    // ---------------------------------------------------------------- consulta
 
     public boolean encontrarElemento(int valor){
         No aux = raiz;
@@ -197,33 +183,42 @@ public class ArvoreAVL {
         } return aux.valor;
     }
 
-    public void imprimirArvore() {
-        if (raiz == null) {
-            System.out.println("(árvore vazia)");
-            return;
+    // ---------------------------------------------------------------- métricas
+
+    public int tamanho(){
+        return tamanho(raiz);
+    }
+
+    private int tamanho(No no){
+        if(no == null) return 0;
+        return 1 + tamanho(no.esquerda) + tamanho(no.direita);
+    }
+
+    // --------------------------------------------------------------- travessia
+
+    public void percorrer(Ordem tipo){
+        System.out.println("===SEQUÊNCIA " + tipo + "===");
+        auxPercorre(raiz, tipo);
+        System.out.println("===FIM DA ÁRVORE===");
+    }
+
+    private void auxPercorre(No atual, Ordem tipo){
+        switch (tipo){
+            case PREORDEM -> {
+                System.out.println(atual.valor);
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+            }
+            case INORDEM -> {
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+                System.out.println(atual.valor);
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+            }
+            case POSORDEM -> {
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+                System.out.println(atual.valor);
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+            }
         }
-        System.out.println(descrever(raiz));
-        imprimirFilhos(raiz, "");
-    }
-
-    private void imprimirFilhos(No no, String prefixo) {
-        if (no.esquerda == null && no.direita == null) return; // folha: nada abaixo
-        imprimirRamo(no.esquerda, prefixo, "E", false);
-        imprimirRamo(no.direita, prefixo, "D", true);
-    }
-
-    private void imprimirRamo(No no, String prefixo, String lado, boolean ultimo) {
-        String conector = ultimo ? "└── " : "├── ";
-        System.out.println(prefixo + conector + lado + ": " + (no == null ? "·" : descrever(no)));
-
-        if (no != null) {
-            // a linha vertical só continua se ainda houver irmão abaixo
-            String novoPrefixo = prefixo + (ultimo ? "    " : "│   ");
-            imprimirFilhos(no, novoPrefixo);
-        }
-    }
-
-    private String descrever(No no) {
-        return no.valor + " (h=" + no.altura + ", fb=" + calcularFb(no) + ")";
     }
 }

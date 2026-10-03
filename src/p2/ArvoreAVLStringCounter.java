@@ -6,13 +6,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ArvoreAVLStringCounter {
-    private static class No{
+    static class No{
         String palavra;
         int valor;
         Map<String, Integer> files;
         int altura;
         No esquerda;
         No direita;
+
+        @Override
+        public String toString() {
+            return "No{" +
+                    "palavra='" + palavra + '\'' +
+                    ", valor=" + valor +
+                    ", files=" + files +
+                    '}';
+        }
 
         No(String palavra, String file){
             this.palavra = palavra;
@@ -24,13 +33,19 @@ public class ArvoreAVLStringCounter {
 
     private No raiz;
 
+    // ------------------------------------------------------------ construtores
+
     public ArvoreAVLStringCounter(){};
+
     public ArvoreAVLStringCounter(String palavra, String file){
         insereElemento(palavra, file);
     };
+
     public ArvoreAVLStringCounter(Map<String, String> palavra){
         insereElemento(palavra);
     }
+
+    // ---------------------------------------------------------------- inserção
 
     public void insereElemento(String palavra, String file){
         if(raiz == null) {raiz = new No(palavra, file); return;}
@@ -62,17 +77,11 @@ public class ArvoreAVLStringCounter {
         return balancear(no);
     }
 
+    // ----------------------------------------------------------------- remoção
+
     public void remove(String elemento){
         if(raiz == null) return;
         remove(elemento, raiz);
-    }
-
-    private int atualizarAltura(No no){
-        return 1 + Math.max(
-                no.esquerda != null ? no.esquerda.altura : 0
-                ,
-                no.direita != null ? no.direita.altura : 0
-        );
     }
 
     private void remove(String elemento, No no){
@@ -96,6 +105,20 @@ public class ArvoreAVLStringCounter {
         balancear(no);
     }
 
+    private No removerNo(No no){
+        if (no.esquerda == null) return no.direita;
+        if (no.direita == null) return no.esquerda;
+
+        No aux = no.direita;
+        while (aux.esquerda != null) aux = aux.esquerda;
+
+        no.palavra = aux.palavra;
+        remove(aux.palavra, no.direita);
+        return no;
+    }
+
+    // ------------------------------------------------ balanceamento e rotações
+
     private No balancear(No no) {
         no.altura = atualizarAltura(no);
         int fb = calcularFb(no);
@@ -109,6 +132,14 @@ public class ArvoreAVLStringCounter {
         int fbFilho = calcularFb(pesado);
 
         return rotacionar(no, pesado, fb, fbFilho);
+    }
+
+    private int atualizarAltura(No no){
+        return 1 + Math.max(
+                no.esquerda != null ? no.esquerda.altura : 0
+                ,
+                no.direita != null ? no.direita.altura : 0
+        );
     }
 
     private int calcularFb(No aux){
@@ -146,43 +177,7 @@ public class ArvoreAVLStringCounter {
         return temp;
     }
 
-    private No removerNo(No no){
-        if (no.esquerda == null) return no.direita;
-        if (no.direita == null) return no.esquerda;
-
-        No aux = no.direita;
-        while (aux.esquerda != null) aux = aux.esquerda;
-
-        no.palavra = aux.palavra;
-        remove(aux.palavra, no.direita);
-        return no;
-    }
-
-    public void percorrer(Ordem tipo){
-        System.out.println("===SEQUÊNCIA " + tipo + "===");
-        auxPercorre(raiz, tipo);
-        System.out.println("===FIM DA ÁRVORE===");
-    }
-
-    private void auxPercorre(No atual, Ordem tipo){
-        switch (tipo){
-            case PREORDEM -> {
-                System.out.println(atual.valor);
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-            }
-            case INORDEM -> {
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-                System.out.println(atual.valor);
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-            }
-            case POSORDEM -> {
-                if(atual.direita != null) auxPercorre(atual.direita, tipo);
-                System.out.println(atual.valor);
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
-            }
-        }
-    }
+    // ---------------------------------------------------------------- consulta
 
     public boolean encontrarPalavra(String palavra){
         No aux = raiz;
@@ -199,7 +194,7 @@ public class ArvoreAVLStringCounter {
         while (aux != null){
             int comparacao = palavra.compareTo(aux.palavra);
             if(aux.palavra.compareTo(palavra) == 0) {
-                System.out.println("Total de ocorrencias de " + aux.palavra + ": " + aux.valor);
+                System.out.println("Total de ocorrências de " + aux.palavra + ": " + aux.valor);
                 aux.files.forEach((file, ocorrencia) ->
                     System.out.println("Arquivo " + file + ": " + ocorrencia)
                 );
@@ -227,38 +222,73 @@ public class ArvoreAVLStringCounter {
         } return aux.valor;
     }
 
+    // ---------------------------------------------------------------- métricas
+
     public boolean vazia(){
         return raiz == null;
     }
 
+    public int tamanho(){
+        return tamanho(raiz);
+    }
 
-    public void imprimirArvore() {
-        if (raiz == null) {
-            System.out.println("(árvore vazia)");
-            return;
+    private int tamanho(No no){
+        if(no == null) return 0;
+        return 1 + tamanho(no.esquerda) + tamanho(no.direita);
+    }
+
+    public int totalOcorrencias(){
+        return totalOcorrencias(raiz);
+    }
+
+    private int totalOcorrencias(No no){
+        if(no == null) return 0;
+        return no.valor + totalOcorrencias(no.esquerda) + totalOcorrencias(no.direita);
+    }
+
+    public int altura(){
+        return raiz == null ? 0 : raiz.altura;
+    }
+
+    // --------------------------------------------------------------- conversão
+
+    public ArvoreAVLOrderByValue retornarOrdenadaPorValor(){
+        ArvoreAVLOrderByValue arvore = new ArvoreAVLOrderByValue();
+        preencherArvore(arvore, raiz);
+        return arvore;
+    }
+
+    private void preencherArvore(ArvoreAVLOrderByValue arvore, No atual){
+        arvore.insereElemento(atual);
+        if(atual.esquerda != null) preencherArvore(arvore, atual.esquerda);
+        if(atual.direita != null) preencherArvore(arvore, atual.direita);
+    }
+
+    // --------------------------------------------------------------- travessia
+
+    public void percorrer(Ordem tipo){
+        System.out.println("===SEQUÊNCIA " + tipo + "===");
+        auxPercorre(raiz, tipo);
+        System.out.println("===FIM DA ÁRVORE===");
+    }
+
+    private void auxPercorre(No atual, Ordem tipo){
+        switch (tipo){
+            case PREORDEM -> {
+                System.out.println(atual.valor);
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+            }
+            case INORDEM -> {
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+                System.out.println(atual.valor);
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+            }
+            case POSORDEM -> {
+                if(atual.direita != null) auxPercorre(atual.direita, tipo);
+                System.out.println(atual.valor);
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
+            }
         }
-        System.out.println(descrever(raiz));
-        imprimirFilhos(raiz, "");
-    }
-
-    private void imprimirFilhos(No no, String prefixo) {
-        if (no.esquerda == null && no.direita == null) return; // folha: nada abaixo
-        imprimirRamo(no.esquerda, prefixo, "E", false);
-        imprimirRamo(no.direita, prefixo, "D", true);
-    }
-
-    private void imprimirRamo(No no, String prefixo, String lado, boolean ultimo) {
-        String conector = ultimo ? "└── " : "├── ";
-        System.out.println(prefixo + conector + lado + ": " + (no == null ? "·" : descrever(no)));
-
-        if (no != null) {
-            // a linha vertical só continua se ainda houver irmão abaixo
-            String novoPrefixo = prefixo + (ultimo ? "    " : "│   ");
-            imprimirFilhos(no, novoPrefixo);
-        }
-    }
-
-    private String descrever(No no) {
-        return no.valor + " (h=" + no.altura + ", fb=" + calcularFb(no) + ")";
     }
 }
