@@ -1,5 +1,6 @@
 package p2;
 
+import p1.ArvoreAVL;
 import p1.Ordem;
 
 import java.util.HashMap;
@@ -124,9 +125,7 @@ public class ArvoreAVLStringCounter {
         int fb = calcularFb(no);
         if(!(fb > 1 || fb < -1)) return no;
 
-        No pesado = no.esquerda == null ? no.direita
-                : no.direita == null ? no.esquerda
-                : no.esquerda.altura > no.direita.altura ? no.esquerda
+        No pesado = fb > 0 ? no.esquerda
                 : no.direita;
 
         int fbFilho = calcularFb(pesado);

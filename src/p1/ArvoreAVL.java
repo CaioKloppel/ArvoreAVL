@@ -103,9 +103,7 @@ public class ArvoreAVL {
         int fb = calcularFb(no);
         if(!(fb > 1 || fb < -1)) return no;
 
-        No pesado = no.esquerda == null ? no.direita
-                : no.direita == null ? no.esquerda
-                : no.esquerda.altura > no.direita.altura ? no.esquerda
+        No pesado = fb > 0 ? no.esquerda
                 : no.direita;
 
         int fbFilho = calcularFb(pesado);
@@ -215,9 +213,9 @@ public class ArvoreAVL {
                 if(atual.direita != null) auxPercorre(atual.direita, tipo);
             }
             case POSORDEM -> {
+                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
                 if(atual.direita != null) auxPercorre(atual.direita, tipo);
                 System.out.println(atual.valor);
-                if(atual.esquerda != null) auxPercorre(atual.esquerda, tipo);
             }
         }
     }

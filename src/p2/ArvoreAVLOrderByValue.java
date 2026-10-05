@@ -41,16 +41,14 @@ public class ArvoreAVLOrderByValue {
     private No balancear(No no) {
         no.altura = atualizarAltura(no);
         int fb = calcularFb(no);
+        if(!(fb > 1 || fb < -1)) return no;
 
-        if (fb > 1) {
-            if (calcularFb(no.esquerda) < 0) no.esquerda = rotacaoEsquerda(no.esquerda);
-            return rotacaoDireita(no);
-        }
-        if (fb < -1) {
-            if (calcularFb(no.direita) > 0) no.direita = rotacaoDireita(no.direita);
-            return rotacaoEsquerda(no);
-        }
-        return no;
+        No pesado = fb > 0 ? no.esquerda
+                : no.direita;
+
+        int fbFilho = calcularFb(pesado);
+
+        return rotacionar(no, pesado, fb, fbFilho);
     }
 
     private int altura(No no) {
@@ -63,6 +61,16 @@ public class ArvoreAVLOrderByValue {
 
     private int calcularFb(No no) {
         return no == null ? 0 : altura(no.esquerda) - altura(no.direita);
+    }
+
+    private No rotacionar(No no, No filho, int fbRaiz, int fbFilho){
+        if (fbRaiz == 2){
+            if(fbFilho == -1) no.esquerda = rotacaoEsquerda(filho);
+            no = rotacaoDireita(no);
+        } else if(fbRaiz == -2){
+            if(fbFilho == 1) no.direita = rotacaoDireita(filho);
+            no = rotacaoEsquerda(no);
+        }return no;
     }
 
     private No rotacaoDireita(No aux) {
