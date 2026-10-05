@@ -13,6 +13,7 @@ public class Main {
         arvore.percorrer(Ordem.PREORDEM);
         arvore.percorrer(Ordem.INORDEM);
         arvore.percorrer(Ordem.POSORDEM);
+        System.out.println(arvore.encontrarElemento(10));
         System.out.println(arvore.retornarMaior());
         System.out.println(arvore.retornarMenor());
         System.out.println(arvore.tamanho());

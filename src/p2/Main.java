@@ -202,7 +202,7 @@ public class Main {
             String[] palavras = conteudo.trim().toLowerCase().split("[^\\p{L}]+");
             boolean inseriu = false;
             for (String p : palavras) {
-                if (!p.isEmpty()) {
+                if (p.length() > 1) {
                     arvore.insereElemento(p, path.toString());
                     inseriu = true;
                 }
